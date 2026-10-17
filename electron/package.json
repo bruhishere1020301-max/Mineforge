@@ -1,0 +1,67 @@
+{
+  "name": "mineforge-studio-desktop",
+  "productName": "MineForge Studio",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.cjs",
+  "author": "MineForge",
+  "description": "Minecraft Java Mods & Shaders AI Studio — desktop edition",
+  "scripts": {
+    "start": "electron .",
+    "start:dev": "cross-env ELECTRON_IS_DEV=1 electron .",
+    "dist": "electron-builder --win",
+    "dist:all": "electron-builder -wml"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8",
+    "cross-env": "^7.0.3"
+  },
+  "build": {
+    "appId": "com.mineforge.studio",
+    "productName": "MineForge Studio",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs"
+    ],
+    "extraResources": [
+      {
+        "from": "../.next/standalone",
+        "to": "app-server",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../.next/static",
+        "to": "app-server/.next/static"
+      },
+      {
+        "from": "../public",
+        "to": "app-server/public"
+      },
+      {
+        "from": "./db-template.db",
+        "to": "db-template/mineforge.db"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}

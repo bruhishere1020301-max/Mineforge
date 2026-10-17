@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// AI provider configurations
+// - "openai"    : any OpenAI-compatible /chat/completions endpoint (cloud or self-hosted)
+// - "anthropic" : any Anthropic-compatible /v1/messages endpoint
+// - "local"     : local AI on the user's own PC (Ollama, LM Studio, llama.cpp, Jan, …) — API key optional
+model Provider {
+  id           String   @id @default(cuid())
+  name         String
+  type         String // "openai" | "anthropic" | "local"
+  baseUrl      String
+  apiKey       String   @default("") // empty for local providers that need no key
+  defaultModel String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("providers")
+}
+
+// A folder on the user's PC where mods / shader packs get generated
+model Project {
+  id        String   @id @default(cuid())
+  name      String
+  path      String // display path (folder name for FSA, absolute path for Electron)
+  kind      String // "fabric" | "forge" | "neoforge" | "quilt" | "shader" | "other"
+  storage   String   @default("fsa") // "fsa" (browser File System Access) | "electron" (Node fs over IPC)
+  handleKey String? // IndexedDB handle key (fsa) or null
+  createdAt DateTime @default(now())
+
+  @@map("projects")
+}
+
+// MCP (Model Context Protocol) servers — extra tools the AI can use while generating
+model McpServer {
+  id            String   @id @default(cuid())
+  name          String
+  transport     String   @default("http") // "http" (Streamable HTTP) | "stdio" (local command)
+  url           String? // for http
+  command       String? // for stdio
+  args          String? // JSON array of CLI args
+  env           String? // JSON object of env vars
+  enabled       Boolean  @default(true)
+  status        String   @default("unknown") // "unknown" | "connected" | "error"
+  statusMessage String?
+  toolCount     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("mcp_servers")
+}
+
+// Chat sessions in the Studio
+model ChatSession {
+  id           String        @id @default(cuid())
+  title        String        @default("New session")
+  mode         String        @default("mod") // "mod" | "shader"
+  projectId    String?
+  contextLimit Int           @default(20) // context window: how many recent messages get sent to the AI
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  messages     ChatMessage[]
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id          String      @id @default(cuid())
+  sessionId   String
+  role        String // "user" | "assistant"
+  content     String
+  excluded    Boolean     @default(false) // context window: user can exclude a message from what the AI receives
+  createdAt   DateTime    @default(now())
+  session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
