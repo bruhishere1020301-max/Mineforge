@@ -57,7 +57,7 @@ server.log
 /electron/release/
 /electron/db-template.db
 
-# databases (never commit — the desktop app ships an empty template generated
+# databases (never commit Ã¢â‚¬â€ the desktop app ships an empty template generated
 # at build time; local dev DBs may contain your private API keys!)
 *.db
 *.db-journal
@@ -71,12 +71,15 @@ worklog.md
 /tests/
 /download/
 
-# local backup of the pre-cleanup git history — CONTAINS OLD SECRETS (the
+# local backup of the pre-cleanup git history Ã¢â‚¬â€ CONTAINS OLD SECRETS (the
 # dev database with API keys). Never commit it; delete it once you have
 # pushed this clean repo.
 .git-local-backup-contains-secrets/
 
-# environment files (copy .env.example → .env instead)
+# environment files (copy .env.example Ã¢â€ â€™ .env instead)
 .env
 .env.*
 !.env.example
+.gh-cred.tmp
+.gh-signin.log
+.gh-*
